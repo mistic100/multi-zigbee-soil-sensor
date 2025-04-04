@@ -26,14 +26,14 @@ void readSensor(MyZigbeeHumiditySensor &sensor, const uint8_t adcPin)
 {
     analogRead(adcPin);
     auto val = analogRead(adcPin);
-    auto humidity = (val - MIN_READ) * 100.0 / (MAX_READ - MIN_READ);
+    float humidity = roundf((val - MIN_READ) * 100.0f / (MAX_READ - MIN_READ));
     if (humidity < 0) {
         humidity = 0;
     }
     if (humidity > 100) {
         humidity = 100;
     }
-    Serial.printf("Report humidity %d : %.2f%%\n", adcPin, humidity);
+    Serial.printf("Report humidity %d : %f%%\n", adcPin, humidity);
     sensor.sendHumidity(humidity);
 }
 

@@ -13,7 +13,7 @@ public:
     void init()
     {
         setManufacturerAndModel("StrangePlanet", "PlantsSensor");
-        addHumiditySensor(0, 100, 0.1);
+        addHumiditySensor(0, 100, 1);
     }
 
     void sendHumidity(float value) {
