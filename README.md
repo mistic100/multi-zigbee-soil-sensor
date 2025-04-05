@@ -4,14 +4,14 @@ A Zigbee device which reports multiple humidity levels from capacitive soil sens
 
 The device enters pairing mode at first boot and waits indefinitely to join a network. Then it enters deep sleep after each reporting (though it is not meant to be battery powered). The onboard LED is red at boot, blue after connecting to the network and green after reporting.
 
-![](render.png)
+![render](./render.png)
 
 
 ## Bill of Materials
 
 - ESP32-C6
 - HW-390 capacitive soil sensors
-- 6x6x13 push button (not used yet)
+- push button (not used yet)
 - connection pins
 
 
@@ -29,7 +29,7 @@ Adapt the number of sensor instances for your need.
 
 ## Zigbee2Mqtt
 
-Copy the converter file to your system and restart Z2M before adding the device to the network.
+Copy the [converter file](./zigbee2mqtt/custom_converters/StrangePlanet-PlantsSensor.js) to your system and restart Z2M before adding the device to the network.
 
 You will need to change the endpoints configuration if you changed the number of sensors.
 
