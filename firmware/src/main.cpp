@@ -10,7 +10,7 @@
 #define ADC_3 2
 #define ADC_4 3
 
-#define TIME_TO_SLEEP_S 55
+#define TIME_TO_SLEEP_S (5 * 60 - 5)
 
 auto sensor1 = MyZigbeeHumiditySensor(10);
 auto sensor2 = MyZigbeeHumiditySensor(11);
@@ -49,7 +49,7 @@ static void temp_sensor_value_update(void *arg) {
 
         onboardLed(0, 0, 0);
 
-        delay(TIME_TO_SLEEP_S * 1000);
+        delay(60000);
     }
 }
 */
@@ -92,7 +92,7 @@ void setup()
     Serial.println();
     Serial.println("Ready");
 
-    onboardLed(0, 0, 255);
+    onboardLed(0, 0, 100);
 
     // Delay to allow establishing proper connection with coordinator
     delay(1000);
@@ -102,7 +102,7 @@ void setup()
     readSensor(sensor3, ADC_3);
     readSensor(sensor4, ADC_4);
 
-    onboardLed(0, 255, 0);
+    onboardLed(0, 100, 0);
 
     // Delay to allow the data to be sent before going to sleep
     delay(1000);
