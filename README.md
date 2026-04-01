@@ -2,7 +2,7 @@
 
 A Zigbee device which reports multiple humidity levels from capacitive soil sensors.
 
-The device enters pairing mode at first boot and waits indefinitely to join a network. Then it enters deep sleep after each reporting (though it is not meant to be battery powered). The onboard LED is red at boot, blue after connecting to the network and green after reporting.
+The device enters pairing mode at first boot and waits indefinitely to join a network. Then it reports humidity levels every 5 minutes. The onboard LED is red at boot, green after connecting to the network and blue during reporting.
 
 ![render](./render.png)
 
@@ -22,7 +22,7 @@ In `main.cpp` file:
 - `MIN_READ`: analog value for 0% humidity
 - `MAX_READ`: analog value for 100% humidity
 - `ADC_1`, `ADC_2`, ...: pins for the capacitive sensors
-- `TIME_TO_SLEEP_S`: duration of the deep sleep
+- `REPORT_INTERVAL_S`: interval between each report
 
 Adapt the number of sensor instances for your need.
 

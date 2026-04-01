@@ -2,20 +2,21 @@
 #include <Zigbee.h>
 #include "MyZigbeeHumiditySensor.hpp"
 
-#define MIN_READ 2800
-#define MAX_READ 1100
+#define MIN_READ 2700
+#define MAX_READ 1000
 
 #define ADC_1 0
 #define ADC_2 1
 #define ADC_3 2
 #define ADC_4 3
 
-#define TIME_TO_SLEEP_S (5 * 60 - 5)
+#define REPORT_INTERVAL_S (5 * 60)
+#define DEBUG_INTERVAL_S 1
 
-auto sensor1 = MyZigbeeHumiditySensor(10);
-auto sensor2 = MyZigbeeHumiditySensor(11);
-auto sensor3 = MyZigbeeHumiditySensor(12);
-auto sensor4 = MyZigbeeHumiditySensor(13);
+auto sensor1 = MyZigbeeHumiditySensor(1);
+auto sensor2 = MyZigbeeHumiditySensor(2);
+auto sensor3 = MyZigbeeHumiditySensor(3);
+auto sensor4 = MyZigbeeHumiditySensor(4);
 
 void onboardLed(uint8_t red_val, uint8_t green_val, uint8_t blue_val)
 {
@@ -27,20 +28,25 @@ void readSensor(MyZigbeeHumiditySensor &sensor, const uint8_t adcPin)
     analogRead(adcPin);
     auto val = analogRead(adcPin);
     float humidity = roundf((val - MIN_READ) * 100.0f / (MAX_READ - MIN_READ));
-    if (humidity < 0) {
+    if (humidity < 0)
+    {
         humidity = 0;
     }
-    if (humidity > 100) {
+    if (humidity > 100)
+    {
         humidity = 100;
     }
-    Serial.printf("Report humidity %d : %f%%\n", adcPin, humidity);
+    log_i("Report humidity %d : %f%%, raw value : %d", adcPin, humidity, val);
     sensor.sendHumidity(humidity);
 }
 
-/*
-static void temp_sensor_value_update(void *arg) {
-    for (;;) {
-        onboardLed(0, 0, 255);
+void update_sensor_value(void *arg)
+{
+    int interval = (int)arg;
+
+    for (;;)
+    {
+        onboardLed(0, 0, 100);
 
         readSensor(sensor1, ADC_1);
         readSensor(sensor2, ADC_2);
@@ -49,18 +55,15 @@ static void temp_sensor_value_update(void *arg) {
 
         onboardLed(0, 0, 0);
 
-        delay(60000);
+        vTaskDelay(pdMS_TO_TICKS(interval));
     }
 }
-*/
 
 void setup()
 {
     Serial.begin(115200);
 
     onboardLed(255, 0, 0);
-
-    esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP_S * 1000000ULL);
 
     sensor1.init();
     sensor2.init();
@@ -72,47 +75,36 @@ void setup()
     Zigbee.addEndpoint(&sensor3);
     Zigbee.addEndpoint(&sensor4);
 
+    // Connect to network
     if (!Zigbee.begin())
     {
-        Serial.println("Zigbee failed to start!");
+        log_e("Zigbee failed to start!");
         delay(1000);
         esp_restart();
     }
     else
     {
-        Serial.println("Zigbee started successfully!");
+        log_i("Zigbee started successfully!");
     }
 
-    Serial.print("Connecting to network ");
+    log_i("Connecting to network ");
     while (!Zigbee.connected())
     {
         Serial.print(".");
         delay(100);
     }
     Serial.println();
-    Serial.println("Ready");
+    log_i("Ready");
 
-    onboardLed(0, 0, 100);
+    onboardLed(0, 100, 0);
 
     // Delay to allow establishing proper connection with coordinator
     delay(1000);
 
-    readSensor(sensor1, ADC_1);
-    readSensor(sensor2, ADC_2);
-    readSensor(sensor3, ADC_3);
-    readSensor(sensor4, ADC_4);
-
-    onboardLed(0, 100, 0);
-
-    // Delay to allow the data to be sent before going to sleep
-    delay(1000);
-
     onboardLed(0, 0, 0);
 
-    Serial.println("Going to sleep now");
-    esp_deep_sleep_start();
-
-    // xTaskCreate(temp_sensor_value_update, "temp_sensor_update", 2048, NULL, 10, NULL);
+    int interval = (Serial ? DEBUG_INTERVAL_S : REPORT_INTERVAL_S) * 1000;
+    xTaskCreate(update_sensor_value, "update_sensor_value", 2048, (void *)interval, 10, NULL);
 }
 
 void loop()

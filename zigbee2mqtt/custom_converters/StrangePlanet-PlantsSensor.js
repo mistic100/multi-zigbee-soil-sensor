@@ -6,8 +6,7 @@ export default {
     vendor: 'StrangePlanet',
     description: 'Multi plants soil sensor',
     extend: [
-        m.deviceEndpoints({ "endpoints": { "1": 10, "2": 11, "3": 12, "4": 13 } }),
+        m.deviceEndpoints({ "endpoints": { "1": 1, "2": 2, "3": 3, "4": 4 } }),
         m.humidity({ "endpointNames": ["1", "2", "3", "4"] }),
     ],
-    meta: { "multiEndpoint": true },
 };
